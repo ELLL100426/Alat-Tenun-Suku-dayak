@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Etalase Museum</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: transparent;
+        }
+
+        .gallery-container {
+            max-width: 400px;
+            /* Menyesuaikan lebar di dalam popup Lapentor */
+            margin: auto;
+            text-align: center;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* Container khusus gambar biar tombol bisa nempel di kiri-kanannya */
+        .image-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            max-width: 356px;
+            border-radius: 8px;
+            object-fit: cover;
+            /* Tambahan transisi biar pergantian gambar lebih smooth */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Desain tombol navigasi */
+        .btn-nav {
+            position: absolute;
+            background-color: rgba(211, 84, 0, 0.85);
+            /* Sedikit transparan */
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 10;
+            /* Biar tombol selalu ada di atas gambar */
+        }
+
+        .btn-nav:hover {
+            background-color: rgba(160, 64, 0, 1);
+        }
+
+        /* Set posisi tombol tepat di kiri dan kanan gambar */
+        .prev {
+            left: 5px;
+        }
+
+        .next {
+            right: 5px;
+        }
+
+        .slide-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 15px;
+            line-height: 1.5;
+            text-align: justify;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gallery-container">
+        <!-- Judul akan berubah otomatis -->
+        <div class="slide-title" id="judul-hewan">Memuat...</div>
+
+        <div class="image-wrapper">
+            <!-- Tombol Before / Prev -->
+            <button class="btn-nav prev" id="btn-prev" onclick="gantiSlide(-1)">&#10094;</button>
+
+            <!-- Gambar utama -->
+            <img id="gambar-hewan" src="" alt="Koleksi Museum">
+
+            <!-- Tombol Next -->
+            <button class="btn-nav next" id="btn-next" onclick="gantiSlide(1)">&#10095;</button>
+        </div>
+
+        <!-- Keterangan akan berubah otomatis -->
+        <div class="slide-desc" id="keterangan-hewan">Memuat keterangan...</div>
+    </div>
+
+    <script>
+        // 1. Tempat lu masukin Judul, Link Gambar, dan Keterangan
+        // Cukup edit teks di dalam tanda kutip ini aja ya
+        const koleksiData = [
+            {
+                judul: "Alat Pembuat Motif",
+                gambar: "alat_pembuat_motif.jpg",
+                keterangan: "Alat pembuat motif merupakan bagian dari peralatan tenun ikat, terbuat dari dua batang bambu bagian tengah diberi potongan bambu-bambu kecil untuk mengikatkan daun-daun limbak yang akan dibuat motif ragam hias. Ukuran : P = 228 cm L = 24 cm"
+            },
+            {
+                judul: "Alat Tenun Sidan dan Ikat",
+                gambar: "Alat_tenun_sidan_dan_ikat.jpg",
+                keterangan: `Alat tenun sidan ini terdiri dari dua bagian yaitu rumah dan alat tenun. Rumah tenun terbuat dari kayu berbentuk persegi panjang dan berkaki empat, bagian depan lebih tinggi dari pada bagian belakang. Bagian atas diberi dua buah penahan sisi kiri dan kanan. Alat tenun terdiri dari : Lubung yaitu kayu bulat atas dan bawah, Karap untuk mengatur benang, Lidi untuk mengatur motif, Belici untuk merapatkan motif,Tuil untuk mengatur dan merapatkan benang, Ripang untuk dasar dan motif dasar, Rakup untuk menyusun benang, dan Paku untuk merapikan benang. Pada alat tenun terdapat bentangan kain setengah jadi. Berasal dari Kapuas Hulu. Ukuran : P = 155 cm L = 101 cm
+                
+                            Alat tenun ikat ini terdiri dari : Jengkuan adalah alat untuk mengatur benang, bila, karap untuk mengatur benang, lidi untuk mengatur motif, kayu bulat (tuil) untuk mengatur dan merapatkan benang, kayu penahan penahan dan kulit tali penahan pada pinggang belakang penenun agar lungsi dapat dibentang dengan rentangan yang kuat disebut sengkabit. Tangga ubung dipakai untuk merentang lungsisebelum ditenun, terutama pada waktu mengikat-ikat pola hias. Pengikat ini dipakai daun limbak, bila benang dicelup warna maka benang yang terikat daun limbak kena warna Ragam hias tumbuh-tumbuhan seperti pohon hayat, pakis, sulur-suluran, bunga dan buah juga dipakai sebagai hiasan pada kain tenun ikat. Pada alat tenun dibentangkan kain setengah jadi. Berasal dari Kapuas Hulu. Ukuran : P = 231 cm L = 84 cm`
+            },
+            {
+                judul: "Benang Merah, Kuning dan Hitam",
+                gambar: "benang.jpg",
+                keterangan: "Benang yang digunakan untuk menenun"
+            }
+        ];
+
+        let indexSekarang = 0;
+
+        // Ambil elemen HTML yang akan dimanipulasi
+        const elemenJudul = document.getElementById('judul-hewan');
+        const elemenGambar = document.getElementById('gambar-hewan');
+        const elemenKeterangan = document.getElementById('keterangan-hewan');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function updateTampilan() {
+            // Ganti konten sesuai data array
+            elemenJudul.innerText = koleksiData[indexSekarang].judul;
+            elemenGambar.src = koleksiData[indexSekarang].gambar;
+            elemenKeterangan.innerText = koleksiData[indexSekarang].keterangan;
+
+            // Logika sesuai revisi dosen:
+            // Sembunyikan tombol Prev jika sedang di gambar urutan pertama (index 0)
+            if (indexSekarang === 0) {
+                btnPrev.style.display = 'none';
+            } else {
+                btnPrev.style.display = 'flex';
+            }
+
+            // Sembunyikan tombol Next jika sedang di gambar urutan terakhir
+            if (indexSekarang === koleksiData.length - 1) {
+                btnNext.style.display = 'none';
+            } else {
+                btnNext.style.display = 'flex';
+            }
+        }
+
+        function gantiSlide(arah) {
+            indexSekarang += arah;
+            updateTampilan();
+        }
+
+        // Jalankan fungsi saat web pertama kali dirender
+        updateTampilan();
+    </script>
+
+</body>
+
+</html>
